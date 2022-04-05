@@ -66,7 +66,7 @@ int compress_file(char* in_file_name) {
     double time_used = ((double) end - start) / CLOCKS_PER_SEC;
 
     if (!error_code) {
-        printf("Compressed file %s to %s in %fs.\n",
+        printf("Compressed file %s to %s in %.2fs.\n",
             in_file_name, out_file_name, time_used);
         free(out_file_name);
         return 0;
@@ -117,7 +117,7 @@ int decompress_file(char* in_file_name) {
     double time_used = ((double) end - start) / CLOCKS_PER_SEC;
 
     if (!error_code) {
-        printf("Deompressed file %s to %s in %fs.\n", in_file_name, out_file_name, time_used);
+        printf("Decompressed file %s to %s in %.2fs.\n", in_file_name, out_file_name, time_used);
         free(out_file_name);
         return 0;
     } else {
