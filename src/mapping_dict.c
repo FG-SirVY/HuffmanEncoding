@@ -21,8 +21,10 @@ void mapping_dict_print(struct mapping_dict* mapping_dict) {
             = mapping_dict_mapping_for(mapping_dict, i);
 
         if (mapping->bit_count > 0) {
-            printf("%c->%d (%d)\n", i,
-                mapping->code >> (32 - mapping->bit_count), mapping->bit_count);
+            for (uint32_t j = 0; j < mapping->bit_count; j++) {
+                putchar('0' + get_bit(mapping_dict->mappings + i, j));
+            }
+            printf("->%d (%d)\n", i, mapping->bit_count);
         }
     }
 }
@@ -32,18 +34,33 @@ struct mapping_dict_mapping* mapping_dict_mapping_for(
     return mapping_dict->mappings + c;
 }
 
+uint8_t get_bit(struct mapping_dict_mapping* mapping, uint8_t index) {
+    int byte = index / 8;
+    int bit = index - 8 * byte;
+
+    return (uint8_t)1 & (mapping->code[byte] >> (7 - bit));
+}
+
+void set_bit(struct mapping_dict_mapping* mapping, uint32_t index) {
+    int byte = index / 8;
+    int bit = index - 8 * byte;
+
+    mapping->code[byte] |= 1 << (7 - bit);
+}
+
 void _md_create_mapping(struct huffman_tree* tree,
         struct mapping_dict* mapping_dict, struct mapping_dict_mapping* prev) {
     if (tree->symbol >= 0) {
-        mapping_dict->mappings[tree->symbol].code = prev->code;
-        mapping_dict->mappings[tree->symbol].bit_count = prev->bit_count;
+        memcpy(&mapping_dict->mappings[tree->symbol], prev,
+            sizeof(struct mapping_dict_mapping));
     } else {
         struct mapping_dict_mapping next;
-        next.bit_count = prev->bit_count + 1;
-        next.code = prev->code;
+
+        memcpy(&next, prev, sizeof(struct mapping_dict_mapping));
+        next.bit_count++;
         _md_create_mapping(tree->left, mapping_dict, &next);
 
-        next.code |= 1 << (32 - next.bit_count);
+        set_bit(&next, next.bit_count - 1);
         _md_create_mapping(tree->right, mapping_dict, &next);
     }
 }
@@ -53,8 +70,7 @@ struct mapping_dict* mapping_dict_create_mapping(struct huffman_tree* tree) {
     if (!mapping_dict) return NULL;
 
     struct mapping_dict_mapping next;
-    next.code = 0;
-    next.bit_count = 0;
+    memset(&next, 0, sizeof(struct mapping_dict_mapping));
     _md_create_mapping(tree, mapping_dict, &next);
 
     return mapping_dict;
@@ -92,8 +108,8 @@ int mapping_dict_compress_file(struct mapping_dict* mapping_dict,
         for (size_t i = 0; i < read; i++) {
             struct mapping_dict_mapping* current_mapping
                 = mapping_dict->mappings + in_buffer[i];
-            for (int j = 31; j > (31 - current_mapping->bit_count); j--) {
-                current_byte |= (1 & (current_mapping->code >> j)) << bit_index;
+            for (uint32_t j = 0; j < current_mapping->bit_count; j++) {
+                current_byte |= get_bit(current_mapping, j) << bit_index;
                 bit_index -= 1;
 
                 if (bit_index < 0) {

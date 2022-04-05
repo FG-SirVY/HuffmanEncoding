@@ -13,8 +13,8 @@
  * @brief The mapping which maps one byte to its huffman codes.
  */
 struct mapping_dict_mapping {
-    uint32_t code;
-    int bit_count;
+    uint8_t code[32];
+    uint32_t bit_count;
 };
 
 /**
@@ -65,6 +65,10 @@ void mapping_dict_print(struct mapping_dict* mapping_dict);
  */
 struct mapping_dict_mapping* mapping_dict_mapping_for(
     struct mapping_dict* mapping_dict, uint8_t c);
+
+uint8_t get_bit(struct mapping_dict_mapping* mapping, uint8_t index);
+
+void set_bit(struct mapping_dict_mapping* mapping, uint32_t index);
 
 
 /**
