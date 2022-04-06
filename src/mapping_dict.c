@@ -22,7 +22,7 @@ void mapping_dict_print(struct mapping_dict* mapping_dict) {
 
         if (mapping->bit_count > 0) {
             for (uint32_t j = 0; j < mapping->bit_count; j++) {
-                putchar('0' + get_bit(mapping_dict->mappings + i, j));
+                putchar('0' + mapping_dict_get_bit(mapping_dict->mappings + i, j));
             }
             printf("->%d (%d)\n", i, mapping->bit_count);
         }
@@ -34,14 +34,14 @@ struct mapping_dict_mapping* mapping_dict_mapping_for(
     return mapping_dict->mappings + c;
 }
 
-uint8_t get_bit(struct mapping_dict_mapping* mapping, uint8_t index) {
+uint8_t mapping_dict_get_bit(struct mapping_dict_mapping* mapping, uint8_t index) {
     int byte = index / 8;
     int bit = index - 8 * byte;
 
     return (uint8_t)1 & (mapping->code[byte] >> (7 - bit));
 }
 
-void set_bit(struct mapping_dict_mapping* mapping, uint32_t index) {
+void mapping_dict_set_bit(struct mapping_dict_mapping* mapping, uint32_t index) {
     int byte = index / 8;
     int bit = index - 8 * byte;
 
@@ -60,7 +60,7 @@ void _md_create_mapping(struct huffman_tree* tree,
         next.bit_count++;
         _md_create_mapping(tree->left, mapping_dict, &next);
 
-        set_bit(&next, next.bit_count - 1);
+        mapping_dict_set_bit(&next, next.bit_count - 1);
         _md_create_mapping(tree->right, mapping_dict, &next);
     }
 }
@@ -109,7 +109,7 @@ int mapping_dict_compress_file(struct mapping_dict* mapping_dict,
             struct mapping_dict_mapping* current_mapping
                 = mapping_dict->mappings + in_buffer[i];
             for (uint32_t j = 0; j < current_mapping->bit_count; j++) {
-                current_byte |= get_bit(current_mapping, j) << bit_index;
+                current_byte |= mapping_dict_get_bit(current_mapping, j) << bit_index;
                 bit_index -= 1;
 
                 if (bit_index < 0) {

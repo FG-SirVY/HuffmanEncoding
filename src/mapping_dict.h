@@ -66,9 +66,25 @@ void mapping_dict_print(struct mapping_dict* mapping_dict);
 struct mapping_dict_mapping* mapping_dict_mapping_for(
     struct mapping_dict* mapping_dict, uint8_t c);
 
-uint8_t get_bit(struct mapping_dict_mapping* mapping, uint8_t index);
 
-void set_bit(struct mapping_dict_mapping* mapping, uint32_t index);
+/**
+ * @brief Returns the bit (0 or 1) at the given index.
+ * 
+ * @param mapping the mapping for fron which the bit should be retrieved.
+ * @param index the index of the bit.
+ * @return uint8_t the state of the bit (0 or 1).
+ */
+uint8_t mapping_dict_get_bit(struct mapping_dict_mapping* mapping,
+    uint8_t index);
+
+/**
+ * @brief Sets the bit to 1 at a given index.
+ * 
+ * @param mapping the mapping for which the bit should be set.
+ * @param index the index at which to set the bit.
+ */
+void mapping_dict_set_bit(struct mapping_dict_mapping* mapping,
+    uint32_t index);
 
 
 /**
