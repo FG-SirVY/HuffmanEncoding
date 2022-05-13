@@ -20,4 +20,4 @@ followed by the encoded file content.
 
 
 # Usage
-Run the compiled executable (build/Release), the prompts presented should be clear.
+Run the compiled executable, the prompts presented should be clear.
